@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 import gymnasium as gym
+from gymnasium.wrappers import AtariPreprocessing
 import ale_py
 import cv2
 from matplotlib import pyplot as plt
@@ -10,12 +11,14 @@ import copy
 
 gym.register_envs(ale_py)
 env = gym.make("ALE/Breakout-v5", render_mode="human")
+env = AtariPreprocessing(
+    env, grayscale_obs=True, scale_obs=False, frame_skip=1, terminal_on_life_loss=True
+)
 
 
 def preprocess_image(image, crop_top=20):
-    image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY) / 255.0
-    image = cv2.resize(image, (84, 110))
-    return image[crop_top : crop_top + 84, :]  # 84x84 grayscale
+    image = cv2.resize(image, (84, 110)) / 255.0
+    return image[crop_top : crop_top + 84, :]
 
 
 class DQN(nn.Module):
@@ -37,16 +40,14 @@ class DQN(nn.Module):
         return self.layers(x)
 
 
-total_frames = 0
-
 model = DQN().to("cpu")
 model.load_state_dict(
-    torch.load("models/dqn_model_episode_820.pth", map_location="cpu")
+    torch.load("models/dqn_model_episode_5440.pth", map_location="cpu")
 )
 
 model.eval()
 
-for episode in range(10):
+while True:
     episode_reward = 0
     episode_frames = 0
 
@@ -56,8 +57,9 @@ for episode in range(10):
     done = False
 
     while not done:
-        if random.random() < 0.05:
-            action = env.action_space.sample()
+        if episode_frames % 100 == 0:
+            action = 1
+            print("FIRE!")
         else:
             with torch.no_grad():
                 inp = torch.tensor(frame_stack, dtype=torch.float32).unsqueeze(
@@ -67,11 +69,10 @@ for episode in range(10):
 
         obs, reward, terminated, truncated, info = env.step(action)
 
-        print(f"Selected action: {action} info: {info}")
+        # print(f"Selected action: {action} info: {info}")
 
         episode_reward += reward
         episode_frames += 1
-        total_frames += 1
         done = terminated or truncated
 
         frame_stack.append(preprocess_image(obs))
