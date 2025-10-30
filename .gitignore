@@ -1,5 +1,5 @@
-models/
-models2/
+models/dqn*
+models2/dqn*
 runs/
 
 # Byte-compiled / optimized / DLL files

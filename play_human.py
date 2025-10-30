@@ -10,6 +10,8 @@ Controls:
   Esc / Window close -> quit
 """
 
+# ! This code is AI generated
+
 import gymnasium as gym
 import ale_py
 import pygame

@@ -40,9 +40,7 @@ class DQN(nn.Module):
 
 
 model = DQN().to("cpu")
-model.load_state_dict(
-    torch.load("models2/dqn_model2_episode_7500.pth", map_location="cpu")
-)
+model.load_state_dict(torch.load("models2/best_model.pth", map_location="cpu"))
 
 model.eval()
 

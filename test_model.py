@@ -38,9 +38,7 @@ class DQN(nn.Module):
 
 
 model = DQN().to("cpu")
-model.load_state_dict(
-    torch.load("models/dqn_model_episode_4380.pth", map_location="cpu")
-)
+model.load_state_dict(torch.load("models/best_model.pth", map_location="cpu"))
 
 model.eval()
 
